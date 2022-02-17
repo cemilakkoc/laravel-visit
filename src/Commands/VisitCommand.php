@@ -19,6 +19,7 @@ class VisitCommand extends Command
     public $signature = '
         visit {url}
             {--method=get}
+            {--headers=}
             {--user=}
             {--no-color}
         ';
@@ -70,6 +71,22 @@ class VisitCommand extends Command
         return $method;
     }
 
+    protected function getHeaders(): array
+    {
+        $defaultHeaders = [
+            "Content-Type" => "application/json"
+        ];
+        
+        $headersString = $this->option('headers');
+        $headers = json_decode($headersString, true);
+
+        if(!$headersString || !$headers) {
+            return $defaultHeaders;
+        }
+
+        return $headers;
+    }
+
     protected function makeRequest(): TestResponse
     {
         $method = $this->getMethod();
@@ -83,6 +100,7 @@ class VisitCommand extends Command
     {
         $view = view('visit::header', [
             'method' => $this->option('method'),
+            'headers' => $this->getHeaders(),
             'url' => $this->argument('url'),
             'statusCode' => $response->getStatusCode(),
             'content' => $response->content(),
