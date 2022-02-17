@@ -20,6 +20,7 @@ class VisitCommand extends Command
         visit {url}
             {--method=get}
             {--headers=}
+            {--data=}
             {--user=}
             {--no-color}
         ';
@@ -87,6 +88,18 @@ class VisitCommand extends Command
         return $headers;
     }
 
+    protected function getData(): array
+    {
+        $dataString = $this->option('data');
+        $data = json_decode($dataString, true);
+
+        if (!$dataString || !$data) {
+            return [];
+        }
+        
+        return $data;
+    }
+
     protected function makeRequest(): TestResponse
     {
         $method = $this->getMethod();
@@ -101,6 +114,7 @@ class VisitCommand extends Command
         $view = view('visit::header', [
             'method' => $this->option('method'),
             'headers' => $this->getHeaders(),
+            'data' => $this->getData(),
             'url' => $this->argument('url'),
             'statusCode' => $response->getStatusCode(),
             'content' => $response->content(),
